@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:TagsEditText="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="imageVisible"
+            type="boolean" />
+
+        <variable
+            name="bookmarkrcyitem"
+            type="com.dlog.info_nest.db.entity.BookmarkEntity" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bookmark_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <ImageView
+            android:id="@+id/main_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{imageVisible ? View.VISIBLE : View.GONE}"
+            android:clickable="true"
+            android:scaleType="fitXY"
+            bind:background="@{bookmarkrcyitem.mImage}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/main_title_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{bookmarkrcyitem.mTitle}"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            app:layout_constraintTop_toBottomOf="@id/main_image_view"
+            app:layout_constraintStart_toStartOf="@id/main_image_view" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_tag_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/main_title_view"
+            app:layout_constraintStart_toStartOf="@id/main_title_view">
+
+            <mabbas007.tagsedittext.TagsEditText
+                android:id="@+id/main_tag_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorGreen"
+                TagsEditText:tagsBackground="@drawable/tag_square"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+                <!--android:text="@{bookmarkrcyitem.mTags}" -->
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/main_tag_view"
+            app:layout_constraintStart_toStartOf="@id/main_tag_view">
+
+            <TextView
+                android:id="@+id/main_time_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{bookmarkrcyitem.mDate}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/main_star_btn"
+                />
+
+            <ImageView
+                android:id="@+id/main_star_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                bind:drawable="@{bookmarkrcyitem.mIsStared}"
+                android:paddingRight="16dp"
+                android:clickable="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/main_lock_btn"/>
+
+            <ImageView
+                android:id="@+id/main_lock_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                bind:drawable="@{bookmarkrcyitem.mIsLocked}"
+                android:paddingEnd="16dp"
+                android:clickable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
+

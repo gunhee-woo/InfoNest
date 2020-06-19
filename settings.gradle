@@ -1,0 +1,2 @@
+rootProject.name='Info_nest_test'
+include ':app'

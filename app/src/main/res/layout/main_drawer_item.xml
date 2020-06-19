@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="draweritem"
+            type="com.dlog.info_nest.ui.main.DrawerListItem" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_drawer_recycler_item"
+        android:layout_marginBottom="16dp"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/main_drawer_item_imageView"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            app:image_resource="@{draweritem.drawable}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/main_drawer_item_textView"
+            />
+
+        <TextView
+            android:id="@+id/main_drawer_item_textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{draweritem.title}"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="12dp"
+            android:textSize="15sp"
+            app:layout_constraintTop_toTopOf="@id/main_drawer_item_imageView"
+            app:layout_constraintBottom_toBottomOf="@id/main_drawer_item_imageView"
+            app:layout_constraintStart_toEndOf="@id/main_drawer_item_imageView"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

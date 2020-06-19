@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sort_array">
+        <item>선택</item>
+        <item>최신순</item>
+        <item>오래된순</item>
+        <item>최근사용순</item>
+        <item>읽지않음</item>
+        <item>비밀북마크</item>
+    </string-array>
+</resources>
