@@ -10,6 +10,7 @@ import androidx.arch.core.util.Function;
 import androidx.databinding.ObservableArrayList;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
@@ -33,12 +34,14 @@ public class HomeViewModel extends AndroidViewModel {
     private final SavedStateHandle mSavedStateHandle;
     private final DataRepository mDataRepository;
     private final LiveData<List<BookmarkEntity>> mBookmarks;
+    private final MutableLiveData<List<BookmarkEntity>> mBookmarkDatas;
 
     public HomeViewModel(@NonNull Application application, @NonNull SavedStateHandle savedStateHandle) {
         super(application);
         mSavedStateHandle = savedStateHandle;
         mDataRepository = ((BasicApp) application).getDataRepository();
         mBookmarks = mDataRepository.getBookmarks();
+        mBookmarkDatas = mDataRepository.getBookmarkData();
 
         // Transformations.switchMap
         // LiveData가 변경에 따라 이벤트를 발생 시키면 function을 적용하여 결과를 새로만든 새로운 LiveData에 set한다.
@@ -54,6 +57,10 @@ public class HomeViewModel extends AndroidViewModel {
 
     public LiveData<List<BookmarkEntity>> getmBookmarks() {
         return mBookmarks;
+    }
+
+    public List<BookmarkEntity> getmBookmarkDatas() {
+        return mBookmarkDatas.getValue();
     }
 
     public void insert(BookmarkEntity bookmarkEntity) {

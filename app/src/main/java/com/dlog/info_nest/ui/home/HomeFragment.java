@@ -33,8 +33,11 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import com.moxun.tagcloudlib.view.TagCloudView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,6 +66,39 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mHomeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         subscribeUi(mHomeViewModel.getmBookmarks());
+
+        List<BookmarkEntity> bookmarkEntities = mHomeViewModel.getmBookmarkDatas();
+        ArrayList<String> nouns = new ArrayList<>();
+        HashMap<String, Integer> hashMap = new HashMap<>();
+        ArrayList<String> top10Nouns = new ArrayList<>(); // 북마크 모든 명사 중 top 10 명사만 뽑아냄
+
+        for(BookmarkEntity bookmarkEntity : bookmarkEntities) {
+            nouns.addAll(bookmarkEntity.getmNouns());
+        }
+        for(String noun : nouns) {
+            if(hashMap.containsKey(noun)) {
+                int count = hashMap.get(noun);
+                hashMap.put(noun, count + 1);
+            } else {
+                hashMap.put(noun, 1);
+            }
+        }
+        List<Map.Entry<String, Integer>> list = new LinkedList<>(hashMap.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() { // value 내림차순 정렬, 같으면 key 오름차순 정렬
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                int comparision = (o1.getValue() - o2.getValue()) * -1;
+                return comparision == 0 ? o1.getKey().compareTo(o2.getKey()) : comparision;
+            }
+        });
+        int ix = 0;
+        for(Iterator<Map.Entry<String, Integer>> iter = list.iterator(); iter.hasNext();){
+            if(ix == 10)
+                break;
+            Map.Entry<String, Integer> entry = iter.next();
+            top10Nouns.add(entry.getKey());
+            ix++;
+        }
 
         ArrayList NoOfEmp = new ArrayList();
 

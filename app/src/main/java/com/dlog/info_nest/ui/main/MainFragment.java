@@ -1,5 +1,6 @@
 package com.dlog.info_nest.ui.main;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
@@ -11,6 +12,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -32,8 +34,11 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.dlog.info_nest.BasicApp;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.databinding.MainFragmentBinding;
 import com.dlog.info_nest.db.AppDatabase;
@@ -44,6 +49,9 @@ import com.dlog.info_nest.ui.WebViewActivity;
 import com.dlog.info_nest.utilities.ItemTouchHelperCallback;
 import com.dlog.info_nest.utilities.UrlCrawling;
 import com.google.android.material.navigation.NavigationView;
+
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -166,9 +174,56 @@ public class MainFragment extends Fragment implements TextWatcher {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if(position == 0) {
-                    mMainAdapter.setItem(mMainAdapter.getLockedBookmarkList());
-                    mMainFragmentBinding.mainHideLayout.setVisibility(View.INVISIBLE);
-                    mMainFragmentBinding.mainDrawerLayout.setVisibility(View.INVISIBLE);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_DeviceDefault_Light_Dialog_Alert);
+                    final EditText editText = new EditText(getContext());
+                    builder.setView(editText);
+                    if(BasicApp.prefs.getPasswordPreferences().equals("")) {
+                        builder.setMessage("비밀번호 만들기");
+                        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String password = editText.getText().toString();
+                                BasicApp.prefs.savePreferences(hashingPassword(password));
+                                mMainAdapter.setItem(mMainAdapter.getLockedBookmarkList());
+                                mMainFragmentBinding.mainHideLayout.setVisibility(View.INVISIBLE);
+                                mMainFragmentBinding.mainDrawerLayout.setVisibility(View.INVISIBLE);
+                            }
+                        });
+                        builder.setNeutralButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                return;
+                            }
+                        });
+                        builder.setCancelable(false).show();
+
+                    } else {
+                        builder.setMessage("비밀번호를 입력해 주세요");
+                        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String password = editText.getText().toString();
+                                if(BasicApp.prefs.getPasswordPreferences().equals(hashingPassword(password))) {
+                                    mMainAdapter.setItem(mMainAdapter.getLockedBookmarkList());
+                                    mMainFragmentBinding.mainHideLayout.setVisibility(View.INVISIBLE);
+                                    mMainFragmentBinding.mainDrawerLayout.setVisibility(View.INVISIBLE);
+                                } else {
+                                    Toast.makeText(getContext(), "비밀번호가 일치하지 않습니다", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                        builder.setNeutralButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                return;
+                            }
+                        });
+                        builder.setCancelable(false);
+
+                        AlertDialog alertDialog = builder.create();
+                        alertDialog.getWindow().setLayout(400,400);
+                        alertDialog.show();
+                    }
 
                 } else if(position == 1) {
                     List<BookmarkEntity> todayBookmarkEntities = new ArrayList<>();
@@ -298,7 +353,7 @@ public class MainFragment extends Fragment implements TextWatcher {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String sortName = (String) mMainFragmentBinding.mainFilteringBarSpinnerSort.getItemAtPosition(position);
                 if(sortName.equals("선택")) {
-
+                    subscribeUi(mMainViewModel.getmBookmarks());
                 } else if(sortName.equals("최신순")){
                     subscribeUi(mMainViewModel.getmBookmarks());
                     MainAdapter mainAdapter = (MainAdapter) mMainFragmentBinding.rcyBookmarkList.getAdapter();
@@ -330,7 +385,58 @@ public class MainFragment extends Fragment implements TextWatcher {
 
 
                 } else if(sortName.equals("비밀북마크")) {
-                    mMainAdapter.setItem(mMainAdapter.getLockedBookmarkList());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), android.R.style.Theme_DeviceDefault_Light_Dialog_Alert);
+                    final EditText editText = new EditText(getContext());
+                    builder.setView(editText);
+                    if(BasicApp.prefs.getPasswordPreferences().equals("")) {
+                        builder.setMessage("비밀번호 만들기");
+                        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String password = editText.getText().toString();
+                                BasicApp.prefs.savePreferences(hashingPassword(password));
+                                mMainAdapter.setItem(mMainAdapter.getLockedBookmarkList());
+                                mMainFragmentBinding.mainHideLayout.setVisibility(View.INVISIBLE);
+                                mMainFragmentBinding.mainDrawerLayout.setVisibility(View.INVISIBLE);
+                            }
+                        });
+                        builder.setNeutralButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                return;
+                            }
+                        });
+                        builder.setCancelable(false).show();
+
+                    } else {
+                        builder.setMessage("비밀번호를 입력해 주세요");
+                        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String password = editText.getText().toString();
+                                if(BasicApp.prefs.getPasswordPreferences().equals(hashingPassword(password))) {
+                                    mMainAdapter.setItem(mMainAdapter.getLockedBookmarkList());
+                                    mMainFragmentBinding.mainHideLayout.setVisibility(View.INVISIBLE);
+                                    mMainFragmentBinding.mainDrawerLayout.setVisibility(View.INVISIBLE);
+                                } else {
+                                    Toast.makeText(getContext(), "비밀번호가 일치하지 않습니다", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                        builder.setNeutralButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                return;
+                            }
+                        });
+                        builder.setCancelable(false);
+
+                        AlertDialog alertDialog = builder.create();
+                        alertDialog.getWindow().setLayout(600,400);
+                        alertDialog.show();
+
+                        //mMainAdapter.setItem(mMainAdapter.getLockedBookmarkList());
+                    }
                 }
             }
             @Override
@@ -343,6 +449,7 @@ public class MainFragment extends Fragment implements TextWatcher {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String color = (String) mMainFragmentBinding.mainFilteringBarSpinnerColor.getItemAtPosition(position);
+
                 if(color.equals("초록")) {
                     subscribeUi(mMainViewModel.getmBookmarks());
                     MainAdapter mainAdapter = (MainAdapter) mMainFragmentBinding.rcyBookmarkList.getAdapter();
@@ -364,6 +471,8 @@ public class MainFragment extends Fragment implements TextWatcher {
                         }
                     }
                     mMainAdapter.setItem(sortedBookmarkEntities);
+                } else if(color.equals("선택")) {
+                    subscribeUi(mMainViewModel.getmBookmarks());
                 }
             }
 
@@ -373,8 +482,6 @@ public class MainFragment extends Fragment implements TextWatcher {
             }
         });
     }
-
-
 
 
     @Override
@@ -399,5 +506,9 @@ public class MainFragment extends Fragment implements TextWatcher {
     @Override
     public void afterTextChanged(Editable s) {
 
+    }
+
+    public static String hashingPassword(String password) { // SHA-1 apache commons codec library 사용
+        return new String(Hex.encodeHex(DigestUtils.sha1(password)));
     }
 }
