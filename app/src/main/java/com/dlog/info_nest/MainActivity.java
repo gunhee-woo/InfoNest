@@ -6,15 +6,18 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.dlog.info_nest.databinding.MainActivityBinding;
 import com.dlog.info_nest.ui.home.HomeFragment;
 import com.dlog.info_nest.ui.main.MainFragment;
 import com.dlog.info_nest.ui.palette.PaletteFragment;
+import com.dlog.info_nest.utilities.ClipboardService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +33,13 @@ public class MainActivity extends AppCompatActivity {
         mMainActivityBinding = DataBindingUtil.setContentView(this, R.layout.main_activity);
         mFragmentManager = getSupportFragmentManager();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+        //clipboard service 등록
+        Intent serviceIntent = new Intent(this, ClipboardService.class);
+        startService(serviceIntent);
+        if(BasicApp.prefsManager.getClipboardDataPrefs().matches("^http(s)?:.*")){
+            Toast.makeText(this, BasicApp.prefsManager.getClipboardDataPrefs(), Toast.LENGTH_LONG).show();
+        }
 
         // TODO DB에 저장된 북마크가 있으면 바로 homeFragment로 이동 없으면 initFragment로 이동
 

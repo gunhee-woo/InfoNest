@@ -79,6 +79,10 @@ dependencies {
     implementation 'com.github.pchmn:MaterialChipsInput:1.0.8'
     implementation 'com.github.mabbas007:TagsEditText:1.0.5'
 
+    implementation 'petrov.kristiyan:colorpicker-library:1.1.10'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation "androidx.cardview:cardview:1.0.0"
+
 }
 repositories {
     maven { url 'https://jitpack.io' }

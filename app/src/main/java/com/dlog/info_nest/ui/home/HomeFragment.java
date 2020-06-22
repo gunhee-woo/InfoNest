@@ -64,6 +64,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         mHomeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         subscribeUi(mHomeViewModel.getmBookmarks());
 
@@ -71,7 +72,7 @@ public class HomeFragment extends Fragment {
         ArrayList<String> nouns = new ArrayList<>();
         HashMap<String, Integer> hashMap = new HashMap<>();
         ArrayList<String> top10Nouns = new ArrayList<>(); // 북마크 모든 명사 중 top 10 명사만 뽑아냄
-
+        
         for(BookmarkEntity bookmarkEntity : bookmarkEntities) {
             nouns.addAll(bookmarkEntity.getmNouns());
         }

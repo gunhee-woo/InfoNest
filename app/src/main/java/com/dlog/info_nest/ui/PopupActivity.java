@@ -25,8 +25,17 @@ import com.dlog.info_nest.DataRepository;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.databinding.PopupActivityBinding;
 import com.dlog.info_nest.db.entity.BookmarkEntity;
+import com.dlog.info_nest.utilities.Domparser;
 import com.dlog.info_nest.utilities.UrlCrawling;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,8 +74,49 @@ public class PopupActivity extends AppCompatActivity {
             String title = getIntent().getStringExtra("title");
             mPopupActivityBinding.editTxtPopupTitle.setText(title);
             mPopupActivityBinding.editTxtPopupUrl.setText(url);
-            UrlCrawling urlCrawling = new UrlCrawling(url);
-            mPopupActivityBinding.edtPopupTag.setTags(urlCrawling.getUrlToTop10NounsArray().toArray(new String[0]));
+            final String[] lines = new String[2];
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Domparser dp = new Domparser(url);
+                    //meta, title 크롤링
+                    lines[0] = dp.getDoc();
+                    //keyword 추출.
+                    try {
+                        lines[0] = URLEncoder.encode(lines[0], "UTF-8");
+                        URL keywordUrl = new URL(BasicApp.baseUrl+"/textrank/?message=" + lines[0]);
+                        HttpURLConnection conn = null; //접속
+                        conn = (HttpURLConnection)keywordUrl.openConnection();
+                        if(conn != null) {
+                            conn.setConnectTimeout(5000);
+                            conn.setUseCaches(false);
+                            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                                //데이터 읽기
+                                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                                lines[1] = br.readLine();
+                                br.close();
+                            }
+                            else{
+                                Log.d("TTT", conn.getResponseMessage());
+                            }
+                            conn.disconnect();
+                        }
+                    } catch (UnsupportedEncodingException | MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            t.start();
+            try {
+                t.join();
+                if(lines[1] != null && lines[1].length() != 0) {
+                    mPopupActivityBinding.edtPopupTag.setTags(lines[1].split(" "));
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         createColorPickerBar();
