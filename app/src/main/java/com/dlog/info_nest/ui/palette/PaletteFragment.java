@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.room.Room;
@@ -30,6 +31,7 @@ import com.dlog.info_nest.R;
 import com.dlog.info_nest.databinding.PaletteFragmentBinding;
 import com.dlog.info_nest.db.WidgetDB;
 import com.dlog.info_nest.db.entity.WidgetItem;
+import com.dlog.info_nest.ui.WebViewActivity;
 import com.dlog.info_nest.ui.palette.views.FigureView;
 import com.dlog.info_nest.utilities.Code;
 import com.dlog.info_nest.utilities.ColorSaver;
@@ -64,6 +66,8 @@ public class PaletteFragment extends Fragment {
     // 도형을 add할때마다 list에 넣어주고 도형을 삭제하면 list에서도 삭제.. 아마 list에서도 자동삭제가 되겠지 ? 포인터니까??
     ArrayList<FigureView> figureList;
 
+    private Boolean isFabOpen = false;
+    private Animation mBtnOpen, mBtnClose;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -74,6 +78,9 @@ public class PaletteFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mBtnOpen = AnimationUtils.loadAnimation(getContext(), R.anim.fab_open);
+        mBtnClose = AnimationUtils.loadAnimation(getContext(), R.anim.fab_close);
+
         figureList = new ArrayList<>();
         Thread getWidgetThread = new Thread(new Runnable() {
             @Override
@@ -107,7 +114,23 @@ public class PaletteFragment extends Fragment {
 
         trash_view = view.findViewById(R.id.img_trash);
 
-
+        mPaletteFragment.fab1.setOnClickListener(v -> {
+            anim();
+        });
+        //도형 추가 버튼
+        mPaletteFragment.fab2.setOnClickListener(v -> {
+            anim();
+            Intent intent2 = new Intent(context, PopupActivity.class);
+            intent2.putExtra("RequestCode" , Code.RQ_TOPOPUP_ADD);
+            startActivityForResult(intent2, Code.RQ_TOPOPUP_ADD);
+        });
+        //bookmark에서 도형 추가
+        mPaletteFragment.fab3.setOnClickListener(v -> {
+            anim();
+            Intent intent2 = new Intent(context, BookMarkListPopupActivity.class);
+            intent2.putExtra("RequestCode" , Code.RQ_TOPOPUP_ADD);
+            startActivityForResult(intent2, Code.RQ_TOPOPUP_ADD);
+        });
 
         //도형 추가 버튼 (임시)
         Button btn_add = view.findViewById(R.id.btn_sticker_add);
@@ -196,6 +219,25 @@ public class PaletteFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
+    public void anim() {
+        if (isFabOpen) {
+            mPaletteFragment.fab1.setImageResource(R.drawable.ic_add_black_24dp);
+            mPaletteFragment.fab2.startAnimation(mBtnClose);
+            mPaletteFragment.fab3.startAnimation(mBtnClose);
+            mPaletteFragment.fab2.setClickable(false);
+            mPaletteFragment.fab3.setClickable(false);
+            isFabOpen = false;
+        } else {
+            mPaletteFragment.fab1.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_close_black_36dp));
+            mPaletteFragment.fab2.startAnimation(mBtnOpen);
+            mPaletteFragment.fab3.startAnimation(mBtnOpen);
+            mPaletteFragment.fab2.setClickable(true);
+            mPaletteFragment.fab3.setClickable(true);
+            isFabOpen = true;
+        }
+    }
+
     private void setSavedWidgets(ArrayList<WidgetItem> widgetItemList){
         for(int i = 0 ; i < widgetItemList.size() ; i++){
             final WidgetItem widgetItem = widgetItemList.get(i);

@@ -16,4 +16,9 @@ public class Code {
 
     //취소 result code  do nothing
     public static int CANCEL_RESULT = 0;
+
+    /**
+     * 북마크 리스트에서 하나를 선택해서 popupactivity를 호출할때 보내는 requset code
+     */
+    public static int RQ_TOPOPUP_LIST_ADD = 102;
 }

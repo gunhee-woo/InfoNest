@@ -1,0 +1,74 @@
+package com.dlog.info_nest.ui.palette.adapters;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.dlog.info_nest.R;
+import com.dlog.info_nest.db.entity.BookmarkEntity;
+
+import java.util.List;
+
+public class BookMarkListAdapter extends RecyclerView.Adapter<BookMarkListAdapter.ViewHolder> {
+    private List<BookmarkEntity> bookmarkList;
+    // 리스너 객체 참조를 저장하는 변수
+    private OnItemClickListener mListener = null ;
+
+    public BookMarkListAdapter(List<BookmarkEntity> list){
+        this.bookmarkList = list;
+    }
+    public interface OnItemClickListener {
+        void onItemClick(View v, int position) ;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.bookmark_rcyl_item, parent, false);;
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.txt_title.setText(bookmarkList.get(position).mTitle);
+        holder.txt_url.setText(bookmarkList.get(position).mUrl);
+    }
+
+    @Override
+    public int getItemCount() {
+        return bookmarkList.size();
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder{
+        TextView txt_title;
+        TextView txt_url;
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            txt_title = itemView.findViewById(R.id.txt_bookmark_title);
+            txt_url = itemView.findViewById(R.id.txt_bookmark_url);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = getAdapterPosition() ;
+                    if (pos != RecyclerView.NO_POSITION) {
+                        // 리스너 객체의 메서드 호출.
+                        if (mListener != null) {
+                            mListener.onItemClick(v, pos) ;
+                        }
+                    }
+                }
+            });
+
+        }
+    }
+    // OnItemClickListener 리스너 객체 참조를 어댑터에 전달하는 메서드
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.mListener = listener ;
+    }
+}

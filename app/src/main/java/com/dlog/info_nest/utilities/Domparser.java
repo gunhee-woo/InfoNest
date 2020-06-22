@@ -6,6 +6,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
+
 /**
  * thread 열어서 실행되어야함.
  * url의 meta와 title을 크롤링한다.
@@ -50,6 +52,12 @@ public class Domparser {
             Log.d("TTT","jsoup error : " + e.toString());
             return "";
         }
+    }
+    public String getTitle() throws IOException {
+
+        org.jsoup.nodes.Document doc = Jsoup.connect(url).get();
+        Elements elements = doc.getElementsByTag("meta");
+        return doc.select("head > title").text();
     }
 
 }

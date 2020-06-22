@@ -1,5 +1,6 @@
 package com.dlog.info_nest.ui.home;
 
+import android.content.Intent;
 import android.icu.text.Edits;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,11 +19,14 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.dlog.info_nest.BasicApp;
 import com.dlog.info_nest.MainActivity;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.databinding.HomeFragmentBinding;
 import com.dlog.info_nest.db.AppDatabase;
 import com.dlog.info_nest.db.entity.BookmarkEntity;
+import com.dlog.info_nest.ui.PopupActivity;
+import com.dlog.info_nest.utilities.Domparser;
 import com.dlog.info_nest.utilities.UrlCrawling;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -32,6 +37,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.moxun.tagcloudlib.view.TagCloudView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,6 +64,39 @@ public class HomeFragment extends Fragment {
         mHomeFragmentBinding = DataBindingUtil.inflate(inflater, R.layout.home_fragment, container, false);
         mTextTagsAdapter = new TextTagsAdapter();
         mHomeFragmentBinding.homeWordcloudView.setAdapter(mTextTagsAdapter);
+
+        //클립보드에 url이 저장되어있으면 북마크 추가창을 띄운다.
+        String clipData = BasicApp.prefsManager.getClipboardDataPrefs();
+        if(clipData.matches("^http(s)?:.*")){
+            Intent intent = new Intent(getActivity(), PopupActivity.class);
+            intent.putExtra("url", clipData);
+            Domparser dp = new Domparser(clipData);
+            final String[] title = new String[1];
+            try {
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            title[0] = dp.getTitle();
+                        } catch (IOException e) {
+                            //do nothing
+                        }
+                    }
+                });
+                t.start();
+                t.join();
+                if(title[0] != null) {
+                    intent.putExtra("title", title[0]);
+                    intent.putExtra("activity", "webView");
+                    startActivity(intent);
+                }
+            } catch (InterruptedException e) {
+                //do nothing . 그냥 북마크 추가창 띄우지 않기
+            }
+            BasicApp.prefsManager.setClipboardDataPrefs("");
+
+        }
+
         return mHomeFragmentBinding.getRoot();
     }
 
@@ -72,7 +111,7 @@ public class HomeFragment extends Fragment {
         ArrayList<String> nouns = new ArrayList<>();
         HashMap<String, Integer> hashMap = new HashMap<>();
         ArrayList<String> top10Nouns = new ArrayList<>(); // 북마크 모든 명사 중 top 10 명사만 뽑아냄
-        
+        /*
         for(BookmarkEntity bookmarkEntity : bookmarkEntities) {
             nouns.addAll(bookmarkEntity.getmNouns());
         }
@@ -99,7 +138,7 @@ public class HomeFragment extends Fragment {
             Map.Entry<String, Integer> entry = iter.next();
             top10Nouns.add(entry.getKey());
             ix++;
-        }
+        }*/
 
         ArrayList NoOfEmp = new ArrayList();
 

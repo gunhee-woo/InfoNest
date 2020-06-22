@@ -135,7 +135,7 @@ public class PopupActivity extends AppCompatActivity {
                     WidgetItem widgetItem = new WidgetItem(figure_layout_id, color, title, url, -1, 0f, 0f);
                     Intent result = new Intent();
                     result.putExtra("WidgetItem", widgetItem);
-                    if(requestCode == Code.RQ_TOPOPUP_ADD) {
+                    if(requestCode == Code.RQ_TOPOPUP_ADD || requestCode == Code.RQ_TOPOPUP_LIST_ADD) {
                         setResult(Code.RS_TOWIDGET_ADD, result);
                     }else if (requestCode == Code.RQ_TOPOPUP_UPDATE){
                         result.putExtra("IdxOfFigureList", idxOfFigureList);
@@ -168,6 +168,11 @@ public class PopupActivity extends AppCompatActivity {
                     break;
                 }
             }
+            edt_title.setText(title);
+            edt_url.setText(url);
+        }else if(requestCode == Code.RQ_TOPOPUP_LIST_ADD){
+            String title = intent.getStringExtra("Title");
+            String url = intent.getStringExtra("Url");
             edt_title.setText(title);
             edt_url.setText(url);
         }

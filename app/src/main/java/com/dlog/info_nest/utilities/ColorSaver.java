@@ -8,7 +8,7 @@ public class ColorSaver {
             add("#00000000");
             add("#000000");
             add("#ffab91");
-            add("#F48FB1");
+            add("#f48fb1");
             add("#ce93d8");
             add("#b39ddb");
             add("#9fa8da");

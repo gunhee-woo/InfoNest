@@ -37,9 +37,7 @@ public class MainActivity extends AppCompatActivity {
         //clipboard service 등록
         Intent serviceIntent = new Intent(this, ClipboardService.class);
         startService(serviceIntent);
-        if(BasicApp.prefsManager.getClipboardDataPrefs().matches("^http(s)?:.*")){
-            Toast.makeText(this, BasicApp.prefsManager.getClipboardDataPrefs(), Toast.LENGTH_LONG).show();
-        }
+
 
         // TODO DB에 저장된 북마크가 있으면 바로 homeFragment로 이동 없으면 initFragment로 이동
 
