@@ -132,16 +132,7 @@ public class PaletteFragment extends Fragment {
             startActivityForResult(intent2, Code.RQ_TOPOPUP_ADD);
         });
 
-        //도형 추가 버튼 (임시)
-        Button btn_add = view.findViewById(R.id.btn_sticker_add);
-        btn_add.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                Intent intent2 = new Intent(context, PopupActivity.class);
-                intent2.putExtra("RequestCode" , Code.RQ_TOPOPUP_ADD);
-                startActivityForResult(intent2, Code.RQ_TOPOPUP_ADD);
-            }
-        });
+
         //배경색 변경(임시)
         Button btn_back_color_change = view.findViewById(R.id.btn_back_color_change);
         btn_back_color_change.setOnClickListener(new View.OnClickListener(){
@@ -186,6 +177,7 @@ public class PaletteFragment extends Fragment {
                     Intent intent = new Intent(context, My_Widget_Provider.class);
                     intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
                     context.sendBroadcast(intent);
+                    Toast.makeText(context, "저장완료!", Toast.LENGTH_LONG).show();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

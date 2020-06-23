@@ -23,10 +23,34 @@
                 android:layout_height="wrap_content"
                 android:text="위젯에 추가할 url을 클릭"
                 android:textColor="@color/white"
+                android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
+                />
+            <ImageView
+                android:id="@+id/img_search"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/baseline_search_white_24dp"
+                app:layout_constraintTop_toBottomOf="@id/txt_dialog_top"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="15dp"
+                />
+            <EditText
+                android:id="@+id/edt_search_bookmark_widget"
+                android:layout_width="190dp"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:hint="북마크 검색"
+                android:textColorHint="@color/white"
+                android:textColor="@color/white"
+                app:layout_constraintTop_toTopOf="@id/img_search"
+                app:layout_constraintBottom_toBottomOf="@id/img_search"
+                app:layout_constraintStart_toEndOf="@id/img_search"
+                android:layout_marginStart="10dp"
                 />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -36,8 +60,9 @@
                 android:layout_marginTop="10dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/txt_dialog_top"
+                app:layout_constraintTop_toBottomOf="@id/edt_search_bookmark_widget"
                 app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="10dp"
                 />
 
 

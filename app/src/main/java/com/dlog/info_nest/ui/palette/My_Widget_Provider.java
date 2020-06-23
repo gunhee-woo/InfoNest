@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ import com.dlog.info_nest.BasicApp;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.db.WidgetDB;
 import com.dlog.info_nest.db.entity.WidgetItem;
+import com.dlog.info_nest.ui.WebViewActivity;
 import com.dlog.info_nest.ui.palette.views.FigureView;
 
 import java.util.List;
@@ -109,8 +111,14 @@ public class My_Widget_Provider extends AppWidgetProvider {
 
     private PendingIntent buildURIIntent(Context context, String url)
     {
+        /*
         Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(url));
-        PendingIntent pi = PendingIntent.getActivity(context,0,intent,0);
+        PendingIntent pi = PendingIntent.getActivity(context,0,intent,0);*/
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setComponent(new ComponentName(context, WebViewActivity.class));
+        intent.putExtra("url", url);
+        PendingIntent pi = PendingIntent.getActivity(context, 0, intent, 0);
         return pi;
     }
 
@@ -152,11 +160,14 @@ public class My_Widget_Provider extends AppWidgetProvider {
                     FigureView view = new FigureView(context, widgetItem.getFigure_layout_id(), widgetItem.getColor(),
                             widgetItem.getTitle(), widgetItem.getUrl(), widgetItem.getPosition());
                     view.measure(View.MeasureSpec.makeMeasureSpec(
-                            convertDpToPixels(50), View.MeasureSpec.EXACTLY),
+                            convertDpToPixels(30), View.MeasureSpec.EXACTLY),
                             View.MeasureSpec.makeMeasureSpec(
-                                    convertDpToPixels(50), View.MeasureSpec.EXACTLY));
+                                    convertDpToPixels(30), View.MeasureSpec.EXACTLY));
+                    view.getChildTextView().setTextSize(5f);
+                    view.getChildTextView().setMaxLines(2);
                     view.layout(0,0,view.getMeasuredWidth(),view.getMeasuredHeight());
-                    Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+                    view.getChildTextView().setGravity(Gravity.CENTER);
+                    Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
                     view.draw(new Canvas(bitmap));
 
                     int imgLayoutId ;

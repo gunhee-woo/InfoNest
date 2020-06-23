@@ -2,14 +2,16 @@ package com.dlog.info_nest.ui.palette;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.ObservableArrayList;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,9 +24,9 @@ import com.dlog.info_nest.utilities.Code;
 
 import java.util.List;
 
-public class BookMarkListPopupActivity  extends AppCompatActivity {
+public class BookMarkListPopupActivity  extends AppCompatActivity implements TextWatcher {
     private MainViewModel mMainViewModel;
-
+    BookMarkListAdapter mAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,22 +34,26 @@ public class BookMarkListPopupActivity  extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.pop_up_widget_list);
 
+        EditText edt_search = findViewById(R.id.edt_search_bookmark_widget);
+        edt_search.addTextChangedListener(this);
+
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+
         List<BookmarkEntity> bookmarkEntities = mMainViewModel.getmBookmarkData();
         RecyclerView recyclerView = findViewById(R.id.rcyl_widget_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        BookMarkListAdapter adapter = new BookMarkListAdapter(bookmarkEntities);
-        adapter.setOnItemClickListener(new BookMarkListAdapter.OnItemClickListener() {
+        mAdapter = new BookMarkListAdapter(bookmarkEntities);
+        mAdapter.setOnItemClickListener(new BookMarkListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Intent addIntent = new Intent(getApplicationContext(), PopupActivity.class);
-                addIntent.putExtra("Title", bookmarkEntities.get(position).mTitle);
-                addIntent.putExtra("Url", bookmarkEntities.get(position).mUrl);
+                addIntent.putExtra("Title", mAdapter.getmFilterBookmarkList().get(position).mTitle);
+                addIntent.putExtra("Url", mAdapter.getmFilterBookmarkList().get(position).mUrl);
                 addIntent.putExtra("RequestCode", Code.RQ_TOPOPUP_LIST_ADD);
                 startActivityForResult(addIntent, Code.RQ_TOPOPUP_LIST_ADD);
             }
         });
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(mAdapter);
 
     }
 
@@ -62,5 +68,24 @@ public class BookMarkListPopupActivity  extends AppCompatActivity {
                 finish();
             }
         }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        try{
+            mAdapter.getFilter().filter(s);
+        }catch (Exception e){
+            Log.e("TTT", "text changed error " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
     }
 }
