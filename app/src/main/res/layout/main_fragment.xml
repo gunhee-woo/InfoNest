@@ -148,7 +148,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcy_bookmark_list"
             android:layout_width="match_parent"
@@ -156,9 +155,7 @@
             app:layout_constraintStart_toStartOf="@id/main_filtering_bar"
             app:layout_constraintTop_toBottomOf="@id/main_filtering_bar"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            bind:item="@{bookmarkEntities}">
-
-        </androidx.recyclerview.widget.RecyclerView>
+            bind:item="@{bookmarkEntities}"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_1"
@@ -205,34 +202,33 @@
             android:id="@+id/main_hide_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#CC000000"
-            android:visibility="invisible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0">
+            android:background="#CC000000"
+            android:visibility="invisible">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/main_drawer_layout"
+                android:visibility="invisible"
                 android:layout_width="300dp"
                 android:layout_height="match_parent"
                 android:background="@color/white"
-                android:visibility="invisible"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                >
 
                 <ListView
                     android:id="@+id/main_drawer_list_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
                     android:divider="@null"
-                    android:dividerHeight="0dp" />
+                    android:dividerHeight="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
+            
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

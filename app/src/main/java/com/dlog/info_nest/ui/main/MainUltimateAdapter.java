@@ -19,58 +19,71 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dlog.info_nest.BR;
-import com.dlog.info_nest.BasicApp;
-import com.dlog.info_nest.DataRepository;
-import com.dlog.info_nest.MainActivity;
 import com.dlog.info_nest.R;
-import com.dlog.info_nest.databinding.MainFragmentBinding;
 import com.dlog.info_nest.databinding.MainRecyclerItemBinding;
 import com.dlog.info_nest.db.entity.BookmarkEntity;
-import com.dlog.info_nest.ui.PopupActivity;
 import com.dlog.info_nest.ui.WebViewActivity;
-import com.dlog.info_nest.utilities.ItemTouchHelperListener;
+import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
+import com.marshalchen.ultimaterecyclerview.UltimateViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder> implements ItemTouchHelperListener {
+// 스와이프 기능을 담고 있는 리사이클러뷰 라이브러리를 사용하는 어댑터
+public class MainUltimateAdapter extends UltimateViewAdapter {
 
     private List<BookmarkEntity> mBookmarkList;
     private Context mContext;
     private Boolean isVisible = true;
     private List<BookmarkEntity> lockedBookmarkList;
-    private DataRepository mDataRepository;
 
-    public MainAdapter(Context context) {
-        this.mBookmarkList = new ArrayList<>();
+    public MainUltimateAdapter(Context context) {
+        mBookmarkList = new ArrayList<>();
         lockedBookmarkList = new ArrayList<>();
         mContext = context;
-        //mDataRepository = ((BasicApp) getApplication()).getDataRepository();
-        mDataRepository = ((BasicApp)((MainActivity) mContext).getApplication()).getDataRepository();
     }
 
-    @NonNull
     @Override
-    public MainViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder newFooterHolder(View view) {
+        return new UltimateRecyclerviewViewHolder<>(view);
+    }
 
-            MainRecyclerItemBinding mainRecyclerItemBinding = MainRecyclerItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+    @Override
+    public RecyclerView.ViewHolder newHeaderHolder(View view) {
+        return new UltimateRecyclerviewViewHolder<>(view);
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent) {
+
+        MainRecyclerItemBinding mainRecyclerItemBinding = MainRecyclerItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
                 /*.inflate(LayoutInflater.from(parent.getContext()), R.layout.main_recycler_item,
                         parent, false);*/
-            return new MainViewHolder(mainRecyclerItemBinding);
+        return new MainUltimateViewHolder(mainRecyclerItemBinding);
     }
 
-    @SuppressLint({"ResourceAsColor", "ClickableViewAccessibility", "ResourceType"})
     @Override
-    public void onBindViewHolder(@NonNull MainViewHolder holder, int position) {
+    public int getAdapterItemCount() {
+        return mBookmarkList.size();
+    }
+
+    @Override
+    public long generateHeaderId(int position) {
+        return 0;
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         BookmarkEntity bookmarkEntity = mBookmarkList.get(position);
 
         if(bookmarkEntity.getmIsStared()) {
-            holder.mainRecyclerItemBinding.mainStarBtn.setImageResource(R.drawable.ic_star_black_24dp);
+            ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainStarBtn.setImageResource(R.drawable.ic_star_black_24dp);
         }
 
-        holder.imageVisible(isVisible);
+        ((MainUltimateViewHolder)holder).imageVisible(isVisible);
 
-        holder.mainRecyclerItemBinding.mainImageView.setOnClickListener(v -> {
+        ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainImageView.setOnClickListener(v -> {
             Intent intent = new Intent(mContext, WebViewActivity.class);
             intent.putExtra("url", bookmarkEntity.getmUrl());
             mContext.startActivity(intent);
@@ -78,26 +91,26 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
 
         switch (bookmarkEntity.getmColor()) {
             case 1:
-                holder.mainRecyclerItemBinding.bookmarkItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorGreen));
-                holder.mainRecyclerItemBinding.mainTagEdit.setBackgroundTintList(ContextCompat.getColorStateList(mContext, R.color.colorGreen));
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.bookmarkItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorGreen));
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainTagEdit.setBackgroundTintList(ContextCompat.getColorStateList(mContext, R.color.colorGreen));
                 break;
             case 2:
-                holder.mainRecyclerItemBinding.bookmarkItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorRed));
-                holder.mainRecyclerItemBinding.mainTagEdit.setBackgroundTintList(ContextCompat.getColorStateList(mContext, R.color.colorRed));
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.bookmarkItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorRed));
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainTagEdit.setBackgroundTintList(ContextCompat.getColorStateList(mContext, R.color.colorRed));
                 break;
             case 3:
-                holder.mainRecyclerItemBinding.bookmarkItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
-                holder.mainRecyclerItemBinding.mainTagEdit.setBackgroundTintList(ContextCompat.getColorStateList(mContext, R.color.colorPrimary));
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.bookmarkItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainTagEdit.setBackgroundTintList(ContextCompat.getColorStateList(mContext, R.color.colorPrimary));
                 break;
             case 4:
-                holder.mainRecyclerItemBinding.bookmarkItem.setBackgroundColor(R.color.white);
-                holder.mainRecyclerItemBinding.mainTagEdit.setBackgroundTintList(ContextCompat.getColorStateList(mContext, R.color.white));
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.bookmarkItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.white));
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainTagEdit.setBackgroundTintList(ContextCompat.getColorStateList(mContext, R.color.white));
                 break;
         }
 
-        holder.mainRecyclerItemBinding.mainTagEdit.setTags(bookmarkEntity.getmTags().split(" "));
+        ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainTagEdit.setTags(bookmarkEntity.getmTags().split(" "));
 
-        holder.mainRecyclerItemBinding.mainTagEdit.setOnTouchListener(new View.OnTouchListener() {
+        ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainTagEdit.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
@@ -106,23 +119,56 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             }
         });
 
-        holder.mainRecyclerItemBinding.mainTitleView.setOnClickListener(v -> {
+        /*((MainUltimateViewHolder)holder).mainRecyclerItemBinding.bookmarkItem.setOnTouchListener(new View.OnTouchListener() {
+            float _xSwipe1;
+            float _xSwipe2;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction())
+                {
+                    case MotionEvent.ACTION_DOWN:
+                        _xSwipe1 = event.getX();
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        _xSwipe2 = event.getX();
+
+                        float deltaX = _xSwipe2 - _xSwipe1;
+
+                        if (deltaX < 0)
+                        {
+                            Log.e("SWIPE", "Right to Left swipe");
+                        }
+
+                        else if (deltaX >0)
+                        {
+                            Log.e("SWIPE", "Left to right swipe");
+                        }
+
+                        break;
+                }
+                return false;
+            }
+        });*/
+
+        ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainTitleView.setOnClickListener(v -> {
             Intent intent = new Intent(mContext, WebViewActivity.class);
             intent.putExtra("url", bookmarkEntity.getmUrl());
             mContext.startActivity(intent);
         });
 
-        holder.mainRecyclerItemBinding.mainStarBtn.setOnClickListener(v -> {
+        ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainStarBtn.setOnClickListener(v -> {
             if(bookmarkEntity.getmIsStared()) { //즐겨찾기 되어있으면
                 bookmarkEntity.setmIsStared(false);
-                holder.mainRecyclerItemBinding.mainStarBtn.setImageResource(R.drawable.ic_star_border_black_24dp);
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainStarBtn.setImageResource(R.drawable.ic_star_border_black_24dp);
             } else {
                 bookmarkEntity.setmIsStared(true);
-                holder.mainRecyclerItemBinding.mainStarBtn.setImageResource(R.drawable.ic_star_black_24dp);
+                ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainStarBtn.setImageResource(R.drawable.ic_star_black_24dp);
             }
         });
 
-        holder.mainRecyclerItemBinding.mainLockBtn.setOnClickListener(v -> {
+        ((MainUltimateViewHolder)holder).mainRecyclerItemBinding.mainLockBtn.setOnClickListener(v -> {
             if(bookmarkEntity.getmIsLocked()) {
                 openAlertDialog(mContext, bookmarkEntity, position, 0);
             } else {
@@ -130,7 +176,19 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
             }
         });
 
-        holder.bind(bookmarkEntity);
+        ((MainUltimateViewHolder)holder).bind(bookmarkEntity);
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
+        return null;
+    }
+
+
+
+    @Override
+    public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
+
     }
 
     public void openAlertDialog(Context context, BookmarkEntity bookmarkEntity, int position, int ix) {
@@ -212,36 +270,10 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         return mBookmarkList;
     }
 
-    @Override
-    public int getItemCount() {
-        return mBookmarkList.size();
-    }
-
-    @Override
-    public void onItemSwipe(int position) {
-        mBookmarkList.remove(position);
-        notifyItemRemoved(position);
-    }
-
-    @Override
-    public void onRightClick(int position, RecyclerView.ViewHolder viewHolder) {
-        mDataRepository.delete(mBookmarkList.get(position));
-        mBookmarkList.remove(position);
-        notifyItemRemoved(position);
-    }
-
-    @Override
-    public void onLeftClick(int position, RecyclerView.ViewHolder viewHolder) {
-        Intent intent = new Intent(mContext, PopupActivity.class);
-        intent.putExtra("bookmark", mBookmarkList.get(position));
-        intent.putExtra("activity", "main");
-        mContext.startActivity(intent);
-    }
-
-    public class MainViewHolder extends RecyclerView.ViewHolder {
+    public class MainUltimateViewHolder extends UltimateRecyclerviewViewHolder {
         final MainRecyclerItemBinding mainRecyclerItemBinding;
 
-        public MainViewHolder(MainRecyclerItemBinding mainItemBinding) {
+        public MainUltimateViewHolder(MainRecyclerItemBinding mainItemBinding) {
             super(mainItemBinding.getRoot());
             this.mainRecyclerItemBinding = mainItemBinding;
         }

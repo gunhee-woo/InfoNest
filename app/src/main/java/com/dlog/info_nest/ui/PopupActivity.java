@@ -13,7 +13,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,9 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.dlog.info_nest.utilities.CurrentDateKt.currentDate;
 
@@ -57,8 +54,10 @@ public class PopupActivity extends AppCompatActivity {
 
     private PopupActivityBinding mPopupActivityBinding;
     boolean isOpenDetail = true;
-    private int bookmarkColor;
+    private int bookmarkColor = -1;
     private DataRepository mDataRepository;
+    private BookmarkEntity bookmarkEntity;
+    private boolean isIntentMain = false;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -117,6 +116,13 @@ public class PopupActivity extends AppCompatActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        } else if(Objects.equals(getIntent().getSerializableExtra("activity"),"main")) { // 메인 피드 스와이프 수정 버튼 클릭 시
+            bookmarkEntity = (BookmarkEntity) getIntent().getSerializableExtra("bookmark");
+            mPopupActivityBinding.editTxtPopupTitle.setText(bookmarkEntity.getmTitle());
+            mPopupActivityBinding.editTxtPopupUrl.setText(bookmarkEntity.getmUrl());
+            bookmarkColor = bookmarkEntity.getmColor();
+            mPopupActivityBinding.edtPopupTag.setTags(bookmarkEntity.getmTags().split(" "));
+            isIntentMain = true;
         }
 
         createColorPickerBar();
@@ -126,15 +132,26 @@ public class PopupActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setBtnListener() {
         mPopupActivityBinding.btnPopupOk.setOnClickListener(v -> {
+            if(bookmarkColor == -1) {
+                bookmarkColor = 0;
+            }
             String title = mPopupActivityBinding.editTxtPopupTitle.getText().toString();
             String url = mPopupActivityBinding.editTxtPopupUrl.getText().toString();
             String tag = mPopupActivityBinding.edtPopupTag.getText().toString();
+            int color = bookmarkColor;
+
+            if(isIntentMain) {
+                bookmarkEntity.setmTitle(title);
+                bookmarkEntity.setmUrl(url);
+                bookmarkEntity.setmTags(tag);
+                bookmarkEntity.setmColor(color);
+                mDataRepository.update(bookmarkEntity);
+                finish();
+                return;
+            }
 
             new WebViewActivity.networkAsyncTask(getApplicationContext(), title, url, tag, COLORS[bookmarkColor]).execute();
-            UrlCrawling urlCrawling = new UrlCrawling(url);
-            BookmarkEntity bookmarkEntity = new BookmarkEntity(title, url, tag, currentDate(), COLORS[bookmarkColor],
-                    urlCrawling.getUrlToTop10NounsArray(), null, false, false);
-            mDataRepository.insert(bookmarkEntity);
+
             setResult(1);
             finish();
         });
@@ -158,6 +175,10 @@ public class PopupActivity extends AppCompatActivity {
             }
 
         });
+
+        mPopupActivityBinding.btnPopupFixedpin.setOnClickListener(v -> {
+
+        });
     }
 
     public void createColorPickerBar() {
@@ -168,16 +189,21 @@ public class PopupActivity extends AppCompatActivity {
         mLayoutParams.setMargins(0,5,0,5);
         for(int color : COLORS) {
             ImageView colorView = new ImageView(this);
+            colorView.setLayoutParams(mLayoutParams);
             colorView.setId(ix);
             GradientDrawable colorCircle = (GradientDrawable) ContextCompat.getDrawable(getApplicationContext(), R.drawable.color_circle);
-            colorView.setLayoutParams(mLayoutParams);
+            Drawable checkedColorCircle = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check_circle_black_24dp);
             assert colorCircle != null;
-            colorCircle.setColor(color);
-            colorView.setBackground(colorCircle);
+            if(ix == 0) {
+                checkedColorCircle.setColorFilter(new BlendModeColorFilter(color, BlendMode.COLOR));
+                colorView.setBackground(checkedColorCircle);
+            } else {
+                colorCircle.setColor(color);
+                colorView.setBackground(colorCircle);
+            }
             mPopupActivityBinding.colorSheet.addView(colorView);
             ix++;
 
-            Drawable checkedColorCircle = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check_circle_black_24dp);
             colorView.setOnClickListener(v -> {
                 if(bookmarkColor == -1) { //초기
                     bookmarkColor = v.getId();
@@ -186,14 +212,15 @@ public class PopupActivity extends AppCompatActivity {
                 } else {
                     if(bookmarkColor == v.getId()) { // 이미 눌러진거 다시 누름
                         colorCircle.setColor(COLORS[bookmarkColor]);
-                        colorView.setBackground(colorCircle);
+                        v.setBackground(colorCircle);
+                        bookmarkColor = -1;
                     } else { // 새로운거 누름
                         colorCircle.setColor(COLORS[bookmarkColor]);
-                        colorView.setBackground(colorCircle);
+                        mPopupActivityBinding.colorSheet.getRootView().findViewById(bookmarkColor).setBackground(colorCircle);
 
                         bookmarkColor = v.getId();
                         checkedColorCircle.setColorFilter(new BlendModeColorFilter(COLORS[bookmarkColor], BlendMode.COLOR));
-                        colorView.setBackground(checkedColorCircle);
+                        v.setBackground(checkedColorCircle);
                     }
                 }
             });

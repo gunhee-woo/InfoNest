@@ -21,29 +21,59 @@
             app:layout_constraintTop_toTopOf="parent"
 
             />
-
-        <com.moxun.tagcloudlib.view.TagCloudView
-            android:id="@+id/home_wordcloud_view"
+        
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/hoem_scroll_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:fillViewport="true"
+            android:layout_marginBottom="40dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/home_text_view"
-            app:layout_constraintStart_toStartOf="@id/home_text_view"
-            app:layout_constraintEnd_toEndOf="@id/home_text_view"
-            app:autoScrollMode="uniform"
-            app:darkColor="@color/tagDark"
-            app:lightColor="@color/tagLight"
-            app:radiusPercent="0.6"
-            app:scrollSpeed="3"
-            />
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
 
-        <com.github.mikephil.charting.charts.BarChart
-            android:id="@+id/home_barchart_view"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            app:layout_constraintTop_toBottomOf="@id/home_wordcloud_view"
-            app:layout_constraintStart_toStartOf="@id/home_wordcloud_view"
-            app:layout_constraintEnd_toEndOf="@id/home_wordcloud_view"
-            />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.moxun.tagcloudlib.view.TagCloudView
+                    android:id="@+id/home_wordcloud_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:autoScrollMode="uniform"
+                    android:tag="sticky"
+                    app:darkColor="@color/tagDark"
+                    app:lightColor="@color/tagLight"
+                    app:radiusPercent="0.6"
+                    app:scrollSpeed="3"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+
+                <com.anychart.AnyChartView
+                    android:id="@+id/home_chart_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    app:layout_constraintTop_toBottomOf="@id/home_2d_worddcloud_view"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <net.alhazmy13.wordcloud.WordCloudView
+                    android:id="@+id/home_2d_worddcloud_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    app:layout_constraintTop_toBottomOf="@id/home_wordcloud_view"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

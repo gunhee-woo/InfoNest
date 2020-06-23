@@ -1,6 +1,5 @@
 package com.dlog.info_nest.ui.main;
 
-import android.graphics.Movie;
 import android.view.View;
 import android.widget.ImageView;
 

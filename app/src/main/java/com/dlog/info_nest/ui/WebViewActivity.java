@@ -7,10 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.util.Log;
 import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -30,8 +27,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 
 import static com.dlog.info_nest.utilities.CurrentDateKt.currentDate;
+import static com.dlog.info_nest.utilities.UrlCrawling.addDelay;
 
 public class WebViewActivity extends AppCompatActivity {
     private WebviewActivityBinding mWebviewActivityBinding;
@@ -94,12 +93,6 @@ public class WebViewActivity extends AppCompatActivity {
         });
     }
 
-
-    public Bitmap byteArrayToBitmap(byte[] $byteArray ) {
-        Bitmap bitmap = BitmapFactory.decodeByteArray( $byteArray, 0, $byteArray.length ) ;
-        return bitmap ;
-    }
-
     @Override
     public void onBackPressed() {
         if(mWebviewActivityBinding.webView.canGoBack())
@@ -120,8 +113,8 @@ public class WebViewActivity extends AppCompatActivity {
             this.context = context;
             this.title = title;
             this.url = url;
-            this.tag = "";
-            this.color = -1;
+            this.tag = title; // 테스트용
+            this.color = 0;
         }
 
         public networkAsyncTask(Context context, String title, String url, String tag, int color) {
@@ -137,6 +130,7 @@ public class WebViewActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... voids) {
             try {
                 UrlCrawling urlCrawling = new UrlCrawling(url);
+                addDelay();
                 String imageUrl;
                 byte[] image = null;
                 try {
@@ -146,7 +140,7 @@ public class WebViewActivity extends AppCompatActivity {
                     e.toString();
                 }
                 BookmarkEntity bookmarkEntity = new BookmarkEntity(title, url, tag, currentDate(), color,
-                        urlCrawling.getUrlToTop10NounsArray(), image, false, false);
+                        Arrays.asList(tag.split(" ")), image, false, false);
                 mDataRepository.insert(bookmarkEntity);
                 return true;
             } catch (Exception e) {

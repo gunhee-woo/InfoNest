@@ -1,18 +1,10 @@
 package com.dlog.info_nest.utilities;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -129,9 +121,9 @@ public class UrlCrawling {
         return imageUrl;
     }
 
-    private static void addDelay() {
+    public static void addDelay() {
         try {
-            Thread.sleep(4000);
+            Thread.sleep(2000);
         } catch (InterruptedException ignored) {
             ignored.printStackTrace();
         }

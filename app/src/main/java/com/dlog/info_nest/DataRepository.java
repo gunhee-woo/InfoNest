@@ -58,6 +58,19 @@ public class DataRepository {
         });
     }
 
+    public void update(BookmarkEntity bookmarkEntity) {
+        runOnDiskIO(() -> {
+            mDatabase.bookmarkDao().update(bookmarkEntity);
+        });
+    }
+
+    public void delete(BookmarkEntity bookmarkEntity) {
+        runOnDiskIO(() -> {
+            mDatabase.bookmarkDao().delete(bookmarkEntity);
+        });
+    }
+
+
     public void insertBookmarks(ObservableArrayList<BookmarkEntity> bookmarkEntities) {
         runOnDiskIO(() -> {
             mDatabase.bookmarkDao().insertAll(bookmarkEntities);

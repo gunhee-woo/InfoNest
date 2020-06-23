@@ -22,6 +22,15 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.anychart.AnyChart;
+import com.anychart.chart.common.dataentry.DataEntry;
+import com.anychart.chart.common.dataentry.ValueDataEntry;
+import com.anychart.charts.Cartesian;
+import com.anychart.core.cartesian.series.Column;
+import com.anychart.enums.Anchor;
+import com.anychart.enums.HoverMode;
+import com.anychart.enums.Position;
+import com.anychart.enums.TooltipPositionMode;
 import com.dlog.info_nest.BasicApp;
 import com.dlog.info_nest.MainActivity;
 import com.dlog.info_nest.R;
@@ -42,11 +51,14 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.moxun.tagcloudlib.view.TagCloudView;
 
+import net.alhazmy13.wordcloud.WordCloud;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -65,6 +77,8 @@ public class HomeFragment extends Fragment {
     private HomeFragmentBinding mHomeFragmentBinding;
     private TextTagsAdapter mTextTagsAdapter;
     private HomeViewModel mHomeViewModel;
+
+    private HashMap<String, Integer> hashMap;
 
     @Nullable
     @Override
@@ -113,14 +127,28 @@ public class HomeFragment extends Fragment {
 
         mHomeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         subscribeUi(mHomeViewModel.getmBookmarks());
+    }
 
-        List<BookmarkEntity> bookmarkEntities = mHomeViewModel.getmBookmarkDatas();
+    private void subscribeUi(LiveData<List<BookmarkEntity>> liveData) {
+        // Update the list when the data changes
+        liveData.observe(getViewLifecycleOwner(), bookmarks -> {
+            if (bookmarks != null) {
+                mTextTagsAdapter.setTextTag(bookmarks);
+                initNounsHashMap(bookmarks);
+                set2DWordCloudView();
+                setBarChart();
+            }
+            // espresso does not know how to wait for data binding's loop so we execute changes
+            //            // sync.
+            mHomeFragmentBinding.executePendingBindings();
+        });
+    }
+
+    public void initNounsHashMap(List<BookmarkEntity> bookmarkEntities) {
+        hashMap = new HashMap<>();
         ArrayList<String> nouns = new ArrayList<>();
-        HashMap<String, Integer> hashMap = new HashMap<>();
-        ArrayList<String> top10Nouns = new ArrayList<>(); // 북마크 모든 명사 중 top 10 명사만 뽑아냄
-        /*
         for(BookmarkEntity bookmarkEntity : bookmarkEntities) {
-            nouns.addAll(bookmarkEntity.getmNouns());
+            nouns.addAll(Arrays.asList(bookmarkEntity.getmTags().split(" ")));
         }
         for(String noun : nouns) {
             if(hashMap.containsKey(noun)) {
@@ -130,6 +158,22 @@ public class HomeFragment extends Fragment {
                 hashMap.put(noun, 1);
             }
         }
+    }
+
+    public void set2DWordCloudView() {
+        List<WordCloud> wordClouds = new ArrayList<>();
+        for(HashMap.Entry<String, Integer> entry : hashMap.entrySet()) {
+            WordCloud wordCloud = new WordCloud(entry.getKey(), entry.getValue());
+            wordClouds.add(wordCloud);
+        }
+        mHomeFragmentBinding.home2dWorddcloudView.setDataSet(wordClouds);
+        mHomeFragmentBinding.home2dWorddcloudView.setSize(300, 300);
+        mHomeFragmentBinding.home2dWorddcloudView.setColors(ColorTemplate.MATERIAL_COLORS);
+        mHomeFragmentBinding.home2dWorddcloudView.notifyDataSetChanged();
+    }
+
+    public void setBarChart() {
+        HashMap<String, Integer> top10Nouns = new HashMap<>();
         List<Map.Entry<String, Integer>> list = new LinkedList<>(hashMap.entrySet());
         Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() { // value 내림차순 정렬, 같으면 key 오름차순 정렬
             @Override
@@ -143,41 +187,41 @@ public class HomeFragment extends Fragment {
             if(ix == 10)
                 break;
             Map.Entry<String, Integer> entry = iter.next();
-            top10Nouns.add(entry.getKey());
+            top10Nouns.put(entry.getKey(), entry.getValue());
             ix++;
-        }*/
+        }
 
-        ArrayList NoOfEmp = new ArrayList();
+        Cartesian cartesian = AnyChart.column();
+        List<DataEntry> data = new ArrayList<>();
 
-        NoOfEmp.add(new BarEntry(945f, 0));
-        NoOfEmp.add(new BarEntry(1040f, 1));
-        NoOfEmp.add(new BarEntry(1133f, 2));
-        NoOfEmp.add(new BarEntry(1240f, 3));
-        NoOfEmp.add(new BarEntry(1369f, 4));
-        NoOfEmp.add(new BarEntry(1487f, 5));
-        NoOfEmp.add(new BarEntry(1501f, 6));
-        NoOfEmp.add(new BarEntry(1645f, 7));
-        NoOfEmp.add(new BarEntry(1578f, 8));
-        NoOfEmp.add(new BarEntry(1695f, 9));
+        for(Map.Entry<String, Integer> entry : top10Nouns.entrySet()) {
+            data.add(new ValueDataEntry(entry.getKey(), entry.getValue()));
+        }
 
-        BarDataSet bardataset = new BarDataSet(NoOfEmp, "word");
+        Column column = cartesian.column(data);
+        column.tooltip()
+                .titleFormat("{%X}")
+                .position(Position.CENTER_BOTTOM)
+                .anchor(Anchor.CENTER_BOTTOM)
+                .offsetX(0d)
+                .offsetY(5d)
+                .format("{%Value}{groupsSeparator: }");
 
-        mHomeFragmentBinding.homeBarchartView.animateY(5000);
-        BarData data = new BarData(bardataset);
-        bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
-        mHomeFragmentBinding.homeBarchartView.setData(data);
-    }
+        cartesian.animation(true);
+        cartesian.title("Top 10 KeyWords");
 
-    private void subscribeUi(LiveData<List<BookmarkEntity>> liveData) {
-        // Update the list when the data changes
-        liveData.observe(getViewLifecycleOwner(), bookmarks -> {
-            if (bookmarks != null) {
-                mTextTagsAdapter.setTextTag(bookmarks);
-            }
-            // espresso does not know how to wait for data binding's loop so we execute changes
-            //            // sync.
-            mHomeFragmentBinding.executePendingBindings();
-        });
+        cartesian.yScale().minimum(0d);
+
+        cartesian.yAxis(0).labels().format("{%Value}{groupsSeparator: }");
+
+        cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
+        cartesian.interactivity().hoverMode(HoverMode.BY_X);
+
+        cartesian.xAxis(0).title("KeyWord");
+        cartesian.yAxis(0).title("Frequency");
+
+        mHomeFragmentBinding.homeChartView.setChart(cartesian);
+
     }
 
     @Override
@@ -186,6 +230,5 @@ public class HomeFragment extends Fragment {
         mTextTagsAdapter = null;
         super.onDestroyView();
     }
-
 
 }

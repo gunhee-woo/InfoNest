@@ -1,7 +1,9 @@
 package com.dlog.info_nest.utilities;
 
-public interface ItemTouchHelperListener {
-    boolean onItemMove(int from_position, int to_position);
-    void onItemSwipe(int position);
+import androidx.recyclerview.widget.RecyclerView;
 
+public interface ItemTouchHelperListener {
+    void onItemSwipe(int position);
+    void onRightClick(int position, RecyclerView.ViewHolder viewHolder);
+    void onLeftClick(int position, RecyclerView.ViewHolder viewHolder);
 }

@@ -2,20 +2,14 @@ package com.dlog.info_nest.ui.main;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ObservableArrayList;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -24,26 +18,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.dlog.info_nest.BasicApp;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.databinding.MainFragmentBinding;
-import com.dlog.info_nest.db.AppDatabase;
 import com.dlog.info_nest.db.entity.BookmarkEntity;
 import com.dlog.info_nest.ui.PopupActivity;
 import com.dlog.info_nest.ui.SettingActivity;
@@ -51,36 +42,32 @@ import com.dlog.info_nest.ui.WebViewActivity;
 import com.dlog.info_nest.utilities.Code;
 import com.dlog.info_nest.utilities.HtmlWriter;
 import com.dlog.info_nest.utilities.ItemTouchHelperCallback;
-import com.dlog.info_nest.utilities.UrlCrawling;
-import com.google.android.material.navigation.NavigationView;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
-import static com.dlog.info_nest.utilities.AppExecutorsHelperKt.runOnDiskIO;
-import static com.dlog.info_nest.utilities.AppExecutorsHelperKt.runOnMain;
 import static com.dlog.info_nest.utilities.CurrentDateKt.currentDateLong;
 
 public class MainFragment extends Fragment implements TextWatcher {
 
     public static final String TAG ="MainFragment";
+    private static final int PICK_FROM_EXTERNAL_STORAGE = 2;
 
     private MainAdapter mMainAdapter;
     private MainFragmentBinding mMainFragmentBinding;
@@ -102,7 +89,7 @@ public class MainFragment extends Fragment implements TextWatcher {
         mMainFragmentBinding.rcyBookmarkList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         mMainFragmentBinding.rcyBookmarkList.setAdapter(mMainAdapter);
         mMainFragmentBinding.editSearch.addTextChangedListener(this);
-        helper = new ItemTouchHelper(new ItemTouchHelperCallback(mMainAdapter));
+        helper = new ItemTouchHelper(new ItemTouchHelperCallback(mMainAdapter, getContext()));
         helper.attachToRecyclerView(mMainFragmentBinding.rcyBookmarkList);
         return mMainFragmentBinding.getRoot();
     }
@@ -126,6 +113,7 @@ public class MainFragment extends Fragment implements TextWatcher {
                 bookmarkEntities.addAll(bookmarks);
                 mMainFragmentBinding.setBookmarkEntities(bookmarkEntities);
                 mMainAdapter.setItem(bookmarkEntities);
+                mMainFragmentBinding.rcyBookmarkList.setAdapter(mMainAdapter);
             }
             // espresso does not know how to wait for data binding's loop so we execute changes
             //            // sync.
@@ -250,6 +238,14 @@ public class MainFragment extends Fragment implements TextWatcher {
                     mMainAdapter.setItem(todayBookmarkEntities);
                     mMainFragmentBinding.mainHideLayout.setVisibility(View.INVISIBLE);
                     mMainFragmentBinding.mainDrawerLayout.setVisibility(View.INVISIBLE);
+                } else if(position == 2) {
+                    if(isExternalStorageReadable()) {
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("*/*");
+                        startActivityForResult(intent, PICK_FROM_EXTERNAL_STORAGE);
+                    } else {
+                        Toast.makeText(getContext(), "접근 권한이 필요합니다", Toast.LENGTH_SHORT).show();
+                    }
                 } else if(position == 3){//북마크 내보내기
                     createFile();
                 } else if(position == 4) {
@@ -272,7 +268,7 @@ public class MainFragment extends Fragment implements TextWatcher {
         mMainFragmentBinding.fab3.setOnClickListener(v -> {
             anim();
             Intent intent = new Intent(getContext(), PopupActivity.class);
-            intent.putExtra("activity", "main");
+            intent.putExtra("activity", "floatingButton");
             startActivityForResult(intent, 99);
         });
 
@@ -514,8 +510,6 @@ public class MainFragment extends Fragment implements TextWatcher {
         }
     }
 
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -530,7 +524,29 @@ public class MainFragment extends Fragment implements TextWatcher {
                     }
                     break;
             }
+        } else if(requestCode == PICK_FROM_EXTERNAL_STORAGE) {
+            HashMap<String, String> hashMap = new HashMap<>();
+            if(data == null)
+                return;
+            Uri uri = data.getData();
+            try {
+                InputStream inputStream = this.getContext().getContentResolver().openInputStream(uri);
+                BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder total = new StringBuilder();
+                for (String line; (line = r.readLine()) != null; ) {
+                    if(line.trim().startsWith("<DT><A")) {
+                        String url = line.split("\"")[1];
+                        String title = line.split("<")[2].split(">")[1];
+                        hashMap.put(url, title);
+                        new WebViewActivity.networkAsyncTask(getContext(), title, url).execute();
+                        Log.d("test", title);
+                    }
+                }
+            } catch (Exception e) {
+                e.toString();
+            }
         }
+
     }
 
 
@@ -551,5 +567,15 @@ public class MainFragment extends Fragment implements TextWatcher {
 
     public static String hashingPassword(String password) { // SHA-1 apache commons codec library 사용
         return new String(Hex.encodeHex(DigestUtils.sha1(password)));
+    }
+
+    /* Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
     }
 }
