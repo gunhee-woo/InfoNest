@@ -12,9 +12,11 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -46,6 +48,8 @@ import com.dlog.info_nest.db.entity.BookmarkEntity;
 import com.dlog.info_nest.ui.PopupActivity;
 import com.dlog.info_nest.ui.SettingActivity;
 import com.dlog.info_nest.ui.WebViewActivity;
+import com.dlog.info_nest.utilities.Code;
+import com.dlog.info_nest.utilities.HtmlWriter;
 import com.dlog.info_nest.utilities.ItemTouchHelperCallback;
 import com.dlog.info_nest.utilities.UrlCrawling;
 import com.google.android.material.navigation.NavigationView;
@@ -53,6 +57,10 @@ import com.google.android.material.navigation.NavigationView;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -242,6 +250,8 @@ public class MainFragment extends Fragment implements TextWatcher {
                     mMainAdapter.setItem(todayBookmarkEntities);
                     mMainFragmentBinding.mainHideLayout.setVisibility(View.INVISIBLE);
                     mMainFragmentBinding.mainDrawerLayout.setVisibility(View.INVISIBLE);
+                } else if(position == 3){//북마크 내보내기
+                    createFile();
                 } else if(position == 4) {
                     Intent intent =  new Intent(getContext(), SettingActivity.class);
                     startActivity(intent);
@@ -482,6 +492,28 @@ public class MainFragment extends Fragment implements TextWatcher {
             }
         });
     }
+    private void createFile() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        // filter to only show openable items.
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // Create a file with the requested Mime type
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TITLE, "bookmarks.html");
+        startActivityForResult(intent, Code.WRITE_REQUEST_CODE);
+    }
+    public void writeInFile(@NonNull Uri uri, @NonNull String text){
+        OutputStream outputStream;
+        try{
+            outputStream = getActivity().getContentResolver().openOutputStream(uri);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream));
+            bw.write(text);
+            bw.flush();
+            bw.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
 
 
     @Override
@@ -489,6 +521,15 @@ public class MainFragment extends Fragment implements TextWatcher {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == 1) { // 북마크 추가
             mMainFragmentBinding.executePendingBindings();
+        }else if(requestCode == Code.WRITE_REQUEST_CODE){//북마크 내보내기
+            switch (resultCode){
+                case Activity.RESULT_OK :
+                    if (data != null && data.getData() != null){
+                        HtmlWriter hw = new HtmlWriter(mMainViewModel.getmBookmarkData());
+                        writeInFile(data.getData(), hw.writeHtml());
+                    }
+                    break;
+            }
         }
     }
 

@@ -1,7 +1,10 @@
 package com.dlog.info_nest.ui.home;
 
+import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.icu.text.Edits;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +29,9 @@ import com.dlog.info_nest.databinding.HomeFragmentBinding;
 import com.dlog.info_nest.db.AppDatabase;
 import com.dlog.info_nest.db.entity.BookmarkEntity;
 import com.dlog.info_nest.ui.PopupActivity;
+import com.dlog.info_nest.utilities.Code;
 import com.dlog.info_nest.utilities.Domparser;
+import com.dlog.info_nest.utilities.HtmlWriter;
 import com.dlog.info_nest.utilities.UrlCrawling;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -37,7 +42,10 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.moxun.tagcloudlib.view.TagCloudView;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -64,7 +72,6 @@ public class HomeFragment extends Fragment {
         mHomeFragmentBinding = DataBindingUtil.inflate(inflater, R.layout.home_fragment, container, false);
         mTextTagsAdapter = new TextTagsAdapter();
         mHomeFragmentBinding.homeWordcloudView.setAdapter(mTextTagsAdapter);
-
         //클립보드에 url이 저장되어있으면 북마크 추가창을 띄운다.
         String clipData = BasicApp.prefsManager.getClipboardDataPrefs();
         if(clipData.matches("^http(s)?:.*")){
@@ -179,5 +186,6 @@ public class HomeFragment extends Fragment {
         mTextTagsAdapter = null;
         super.onDestroyView();
     }
+
 
 }

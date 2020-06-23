@@ -21,4 +21,9 @@ public class Code {
      * 북마크 리스트에서 하나를 선택해서 popupactivity를 호출할때 보내는 requset code
      */
     public static int RQ_TOPOPUP_LIST_ADD = 102;
+
+    /**
+     * 파일 쓰기 rq 코드
+     */
+    public static int WRITE_REQUEST_CODE = 88;
 }
