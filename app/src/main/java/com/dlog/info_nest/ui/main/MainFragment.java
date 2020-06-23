@@ -497,7 +497,7 @@ public class MainFragment extends Fragment implements TextWatcher {
         // filter to only show openable items.
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         // Create a file with the requested Mime type
-        intent.setType("text/plain");
+        intent.setType("text/html");
         intent.putExtra(Intent.EXTRA_TITLE, "bookmarks.html");
         startActivityForResult(intent, Code.WRITE_REQUEST_CODE);
     }
