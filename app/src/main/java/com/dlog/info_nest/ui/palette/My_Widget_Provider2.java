@@ -27,7 +27,9 @@ import androidx.room.Room;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.db.WidgetDB2;
 import com.dlog.info_nest.db.entity.WidgetItem2;
+import com.dlog.info_nest.ui.WebViewActivity;
 import com.dlog.info_nest.ui.palette.views.WidgetView;
+import com.dlog.info_nest.utilities.Code;
 
 import java.util.List;
 
@@ -63,10 +65,6 @@ public class My_Widget_Provider2 extends AppWidgetProvider {
                 if(appWidgetIds!=null && appWidgetIds.length>0)
                     this.onUpdate(context,AppWidgetManager.getInstance(context),appWidgetIds);
             }
-        }//업데이트인 경우
-        else if(action.equals("Click1"))
-        {
-            Toast.makeText(context,"Hello",Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -91,17 +89,12 @@ public class My_Widget_Provider2 extends AppWidgetProvider {
     private PendingIntent buildURIIntent(Context context, String url)
     {
         Intent intent = new Intent(Intent.ACTION_VIEW).setData(Uri.parse(url));
-        PendingIntent pi = PendingIntent.getActivity(context,0,intent,0);
-        return pi;
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setComponent(new ComponentName(context, WebViewActivity.class));
+        return PendingIntent.getActivity(context, 0, intent, 0);
     }
 
-    //Click1 이라는 Action을 onReceive로 보낸다.
-    private PendingIntent buildToastIntent(Context context)
-    {
-        Intent in = new Intent("Click1");
-        PendingIntent pi = PendingIntent.getBroadcast(context,0,in,PendingIntent.FLAG_UPDATE_CURRENT);
-        return pi;
-    }
+
 
     //위젯에 멀티 버튼 추가하기
     private RemoteViews buildViews(final Context context) throws InterruptedException {

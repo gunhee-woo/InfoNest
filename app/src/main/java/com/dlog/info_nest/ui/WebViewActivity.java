@@ -1,13 +1,16 @@
 package com.dlog.info_nest.ui;
 
+import android.app.ActivityManager;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.WebSettings;
 import android.widget.Toast;
 
@@ -19,6 +22,7 @@ import androidx.room.Room;
 
 import com.dlog.info_nest.BasicApp;
 import com.dlog.info_nest.DataRepository;
+import com.dlog.info_nest.MainActivity;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.databinding.WebviewActivityBinding;
 import com.dlog.info_nest.db.WidgetDB2;
@@ -33,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.dlog.info_nest.utilities.CurrentDateKt.currentDate;
 import static com.dlog.info_nest.utilities.UrlCrawling.addDelay;
@@ -48,16 +53,21 @@ public class WebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mDataRepository = ((BasicApp) getApplication()).getDataRepository();
         mWebviewActivityBinding = DataBindingUtil.setContentView(this, R.layout.webview_activity);
-        String intentUrl = getIntent().getStringExtra("url");
-        if(intentUrl != null) {
-            mWebviewActivityBinding.webView.setWebViewClient(new MyWebViewClient(getApplicationContext()));
-            mWebSetting = mWebviewActivityBinding.webView.getSettings();
-            mWebSetting.setJavaScriptEnabled(true);
-            mWebviewActivityBinding.webView.loadUrl(intentUrl);
+
+        mWebviewActivityBinding.webView.setWebViewClient(new MyWebViewClient(getApplicationContext()));
+        mWebSetting = mWebviewActivityBinding.webView.getSettings();
+        mWebSetting.setJavaScriptEnabled(true);
+
+        Uri intentUri = getIntent().getData();
+        String url = getIntent().getStringExtra("url");
+        if(intentUri != null) {
+
+            mWebviewActivityBinding.webView.loadUrl(intentUri.toString());
+        } else if (url != null){
+
+            mWebviewActivityBinding.webView.loadUrl(url);
         } else {
-            mWebviewActivityBinding.webView.setWebViewClient(new MyWebViewClient(getApplicationContext()));
-            mWebSetting = mWebviewActivityBinding.webView.getSettings();
-            mWebSetting.setJavaScriptEnabled(true);
+
             mWebviewActivityBinding.webView.loadUrl("https://www.google.com");
         }
         setBtnListener();
@@ -94,18 +104,31 @@ public class WebViewActivity extends AppCompatActivity {
         });
 
         mWebviewActivityBinding.btnClose.setOnClickListener(v -> {
+            if(!MainActivity.isMainRunning ){
+                //Main을 실행
+                Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(mainIntent);
+            }
             finish();
         });
     }
 
     @Override
     public void onBackPressed() {
+
         if(mWebviewActivityBinding.webView.canGoBack())
             mWebviewActivityBinding.webView.goBack();
         else {
+
+            if(!MainActivity.isMainRunning ){
+                //Main을 실행
+                Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(mainIntent);
+            }
             finish();
         }
     }
+
 
     public static class networkAsyncTask extends AsyncTask<Void, Void, Boolean> {
         private Context context;
@@ -146,7 +169,11 @@ public class WebViewActivity extends AppCompatActivity {
                 }
                 BookmarkEntity bookmarkEntity = new BookmarkEntity(title, url, tag, currentDate(), color,
                         Arrays.asList(tag.split(" ")), image, false, false);
+                if(mDataRepository == null){
+                    mDataRepository = ((BasicApp) context).getDataRepository();
+                }
                 mDataRepository.insert(bookmarkEntity);
+
                 //위젯에도 추가
                 WidgetDB2 db = Room.databaseBuilder(context, WidgetDB2.class, "widget_list").build();
                 db.widgetDao2().insertWidgetItem(new WidgetItem2(title, url, 0, 0));
@@ -157,6 +184,7 @@ public class WebViewActivity extends AppCompatActivity {
                 context.sendBroadcast(intent);
                 return true;
             } catch (Exception e) {
+                Log.d("TTT", "북마크 저장실패 : " + e.getMessage());
                 e.toString();
                 return false;
             }

@@ -26,4 +26,7 @@ public interface WidgetDao2 {
 
     @Query("select * from widget_list order by id desc limit 9")
     List<WidgetItem2> getLatelyWidget();
+
+    @Query("DELETE FROM widget_list WHERE url = :url")
+    void deleteByUrl(String url);
 }

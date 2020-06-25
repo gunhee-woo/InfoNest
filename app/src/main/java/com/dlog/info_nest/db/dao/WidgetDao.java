@@ -23,4 +23,7 @@ public interface WidgetDao {
 
     @Query("DELETE FROM widget")
     void deleteAll();
+
+    @Query("DELETE FROM widget WHERE url = :url")
+    void deleteByUrl(String url);
 }

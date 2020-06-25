@@ -26,4 +26,9 @@ public class Code {
      * 파일 쓰기 rq 코드
      */
     public static int WRITE_REQUEST_CODE = 88;
+
+    /**
+     * 위젯 > 웹뷰 rq 코드
+     */
+    public static int RQ_TOWEBVIEW_WIDGET = 500;
 }

@@ -18,9 +18,11 @@ public class AdapterBindings {
         MainAdapter adapter = (MainAdapter) recyclerView.getAdapter();
         if (adapter != null) {
             ObservableArrayList<BookmarkEntity> observableArrayList = new ObservableArrayList<>();
-            for(BookmarkEntity bookmarkEntity : bookmarkEntities) {
-                if(!bookmarkEntity.getmIsLocked())
-                    observableArrayList.add(bookmarkEntity);
+            if(bookmarkEntities != null) {
+                for (BookmarkEntity bookmarkEntity : bookmarkEntities) {
+                    if (!bookmarkEntity.getmIsLocked())
+                        observableArrayList.add(bookmarkEntity);
+                }
             }
             adapter.setItem(observableArrayList);
             //adapter.setItem(bookmarkEntities);

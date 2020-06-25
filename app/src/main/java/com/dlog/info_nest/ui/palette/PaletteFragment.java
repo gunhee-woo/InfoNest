@@ -280,7 +280,20 @@ public class PaletteFragment extends Fragment {
             else if(x > (float)gridLayout.getWidth() * (1f/3f)) pos = 1;
             else pos = 0;
         }
+        int prePos = v.getPosition();
         v.setPosition(pos);
+        //pos가 겹치는 도형을 찾아서 서로의 pos를 바꿔주고  위치 값도 서로 바꿔주기.
+        for(FigureView figureView : figureList){
+            if (v != figureView && pos == figureView.getPosition()){
+                v.setPosition(figureView.getPosition());
+                figureView.setPosition(prePos);
+                v.setX(figureView.getX());
+                v.setY(figureView.getY());
+                figureView.setX(downX);
+                figureView.setY(downY);
+            }
+        }
+
         return gridImgViews[pos];
     }
 
@@ -366,6 +379,8 @@ public class PaletteFragment extends Fragment {
 
                             gridLayout.setVisibility(View.INVISIBLE);
                             trash_view.setVisibility(View.INVISIBLE);
+                        }else{
+                            ((FigureView)v).setPosition(-1);
                         }
 
                         //아래코드는 반드시 실행되어야함. 건드리지 말아야함.

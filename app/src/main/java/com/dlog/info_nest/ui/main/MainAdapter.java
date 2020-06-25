@@ -1,6 +1,7 @@
 package com.dlog.info_nest.ui.main;
 
 import android.annotation.SuppressLint;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.dlog.info_nest.BR;
 import com.dlog.info_nest.BasicApp;
@@ -27,9 +29,13 @@ import com.dlog.info_nest.MainActivity;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.databinding.MainFragmentBinding;
 import com.dlog.info_nest.databinding.MainRecyclerItemBinding;
+import com.dlog.info_nest.db.WidgetDB;
+import com.dlog.info_nest.db.WidgetDB2;
 import com.dlog.info_nest.db.entity.BookmarkEntity;
 import com.dlog.info_nest.ui.PopupActivity;
 import com.dlog.info_nest.ui.WebViewActivity;
+import com.dlog.info_nest.ui.palette.My_Widget_Provider;
+import com.dlog.info_nest.ui.palette.My_Widget_Provider2;
 import com.dlog.info_nest.utilities.ItemTouchHelperListener;
 
 import java.util.ArrayList;
@@ -232,7 +238,27 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
 
     @Override
     public void onRightClick(int position, RecyclerView.ViewHolder viewHolder) {
-        mDataRepository.delete(mBookmarkList.get(position));
+        BookmarkEntity bookmarkEntity = mBookmarkList.get(position);
+        mDataRepository.delete(bookmarkEntity);
+
+        // 위젯도 삭제 !!
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                WidgetDB db = Room.databaseBuilder(mContext, WidgetDB.class, "widget").build();
+                WidgetDB2 db2 = Room.databaseBuilder(mContext, WidgetDB2.class, "widget_list").build();
+                db.widgetDao().deleteByUrl(bookmarkEntity.mUrl);
+                db2.widgetDao2().deleteByUrl(bookmarkEntity.mUrl);
+                Intent intent = new Intent(mContext, My_Widget_Provider.class);
+                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                mContext.sendBroadcast(intent);
+                Intent intent2 = new Intent(mContext, My_Widget_Provider2.class);
+                intent2.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                mContext.sendBroadcast(intent2);
+            }
+        });
+        t.start();
+
         mBookmarkList.remove(position);
         notifyItemRemoved(position);
     }

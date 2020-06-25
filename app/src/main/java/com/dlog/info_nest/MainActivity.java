@@ -20,7 +20,7 @@ import com.dlog.info_nest.ui.palette.PaletteFragment2;
 import com.dlog.info_nest.utilities.ClipboardService;
 
 public class MainActivity extends AppCompatActivity {
-
+    public static boolean isMainRunning = false;
     private MainActivityBinding mMainActivityBinding;
     private HomeFragment mHomeFragment;
     private MainFragment mMainFragment;
@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isMainRunning = true;
         mMainActivityBinding = DataBindingUtil.setContentView(this, R.layout.main_activity);
         mFragmentManager = getSupportFragmentManager();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -129,6 +130,12 @@ public class MainActivity extends AppCompatActivity {
             finish();
             toastBackBt.cancel();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        isMainRunning = false;
+        super.onDestroy();
     }
 }
 
