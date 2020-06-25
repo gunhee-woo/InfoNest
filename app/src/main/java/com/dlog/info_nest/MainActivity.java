@@ -10,11 +10,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.dlog.info_nest.databinding.MainActivityBinding;
 import com.dlog.info_nest.ui.home.HomeFragment;
 import com.dlog.info_nest.ui.main.MainFragment;
 import com.dlog.info_nest.ui.palette.PaletteFragment;
+import com.dlog.info_nest.ui.palette.PaletteFragment2;
 import com.dlog.info_nest.utilities.ClipboardService;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,7 +26,11 @@ public class MainActivity extends AppCompatActivity {
     private MainFragment mMainFragment;
     private PaletteFragment mPaletteFragment;
     private FragmentManager mFragmentManager;
-
+    /**
+     * 백 버튼 두번 연속 누르면 앱 종료
+     */
+    private long backPressedTime = 0;
+    private volatile Toast toastBackBt ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,11 +113,21 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         ConstraintLayout main_drawer_layout = findViewById(R.id.main_drawer_layout);
         ConstraintLayout main_hide_layout = findViewById(R.id.main_hide_layout);
-        if(main_drawer_layout.getVisibility() == View.VISIBLE && main_hide_layout.getVisibility() == View.VISIBLE) {
-            main_drawer_layout.setVisibility(View.INVISIBLE);
-            main_hide_layout.setVisibility(View.INVISIBLE);
-        } else {
-            super.onBackPressed();
+        if(main_drawer_layout != null) {
+            if (main_drawer_layout.getVisibility() == View.VISIBLE && main_hide_layout.getVisibility() == View.VISIBLE) {
+                main_drawer_layout.setVisibility(View.INVISIBLE);
+                main_hide_layout.setVisibility(View.INVISIBLE);
+            }
+        }
+        if(System.currentTimeMillis() > backPressedTime + 2000){
+            backPressedTime = System.currentTimeMillis();
+            toastBackBt = Toast.makeText(this," 뒤로 버튼을 한번 더 누르면 종료됩니다.",Toast.LENGTH_LONG);
+            toastBackBt.show();
+            return;
+        }
+        if(System.currentTimeMillis() <= backPressedTime + 2000){
+            finish();
+            toastBackBt.cancel();
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.dlog.info_nest.ui;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,12 +15,16 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.room.Room;
 
 import com.dlog.info_nest.BasicApp;
 import com.dlog.info_nest.DataRepository;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.databinding.WebviewActivityBinding;
+import com.dlog.info_nest.db.WidgetDB2;
 import com.dlog.info_nest.db.entity.BookmarkEntity;
+import com.dlog.info_nest.db.entity.WidgetItem2;
+import com.dlog.info_nest.ui.palette.My_Widget_Provider2;
 import com.dlog.info_nest.utilities.MyWebViewClient;
 import com.dlog.info_nest.utilities.UrlCrawling;
 
@@ -142,6 +147,14 @@ public class WebViewActivity extends AppCompatActivity {
                 BookmarkEntity bookmarkEntity = new BookmarkEntity(title, url, tag, currentDate(), color,
                         Arrays.asList(tag.split(" ")), image, false, false);
                 mDataRepository.insert(bookmarkEntity);
+                //위젯에도 추가
+                WidgetDB2 db = Room.databaseBuilder(context, WidgetDB2.class, "widget_list").build();
+                db.widgetDao2().insertWidgetItem(new WidgetItem2(title, url, 0, 0));
+                //list 위젯 업데이트
+                //업데이트 인텐트 보내기
+                Intent intent = new Intent(context, My_Widget_Provider2.class);
+                intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                context.sendBroadcast(intent);
                 return true;
             } catch (Exception e) {
                 e.toString();

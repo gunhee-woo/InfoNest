@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Info_nest</string>
     <string name="init_bookmark">저장된 북마크가 없습니다.</string>
+    <string name="widget_name_palette">palette</string>
+    <string name="widget_name_list">최근 북마크</string>
+    <string name="widget_palette_db_name">widget</string>
+    <string name="widget_list_db_name">widget_list</string>
 </resources>

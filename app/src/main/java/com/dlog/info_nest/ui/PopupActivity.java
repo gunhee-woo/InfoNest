@@ -125,7 +125,7 @@ public class PopupActivity extends AppCompatActivity {
             isIntentMain = true;
         }
 
-        createColorPickerBar();
+        //createColorPickerBar();
         setBtnListener();
     }
 
@@ -180,7 +180,7 @@ public class PopupActivity extends AppCompatActivity {
 
         });
     }
-
+    /*
     public void createColorPickerBar() {
         int ix = 0;
         LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -226,9 +226,6 @@ public class PopupActivity extends AppCompatActivity {
             });
         }
 
-
-
-
-    }
+    }*/
 
 }

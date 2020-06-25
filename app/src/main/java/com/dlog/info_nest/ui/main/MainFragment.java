@@ -91,6 +91,7 @@ public class MainFragment extends Fragment implements TextWatcher {
         mMainFragmentBinding.editSearch.addTextChangedListener(this);
         helper = new ItemTouchHelper(new ItemTouchHelperCallback(mMainAdapter, getContext()));
         helper.attachToRecyclerView(mMainFragmentBinding.rcyBookmarkList);
+        mMainFragmentBinding.editSearch.addTextChangedListener(this);
         return mMainFragmentBinding.getRoot();
     }
 
@@ -297,28 +298,16 @@ public class MainFragment extends Fragment implements TextWatcher {
 
         mMainFragmentBinding.btnSearch.setOnClickListener(v -> {
             if(isSearchBtnClicked) {
-                if(!mMainFragmentBinding.editSearch.getText().toString().isEmpty()) {
-                    String text = mMainFragmentBinding.editSearch.getText().toString();
-                    MainAdapter mainAdapter = (MainAdapter) mMainFragmentBinding.rcyBookmarkList.getAdapter();
-                    List<BookmarkEntity> bookmarkEntities = new ArrayList<>();
-                    for(BookmarkEntity bookmarkEntity : mainAdapter.getmBookmarkList()) {
-                        for(String tag : bookmarkEntity.getmTags().split(" ")) {
-                            if(text.equals(tag)) {
-                                bookmarkEntities.add(bookmarkEntity);
-                                break;
-                            }
-                        }
-                    }
-                    mMainAdapter.setItem(bookmarkEntities);
-                } else {
-                    isSearchBtnClicked = false;
-                    mMainFragmentBinding.btnListToggling.setVisibility(View.VISIBLE);
-                    mMainFragmentBinding.editSearch.setVisibility(View.GONE);
-                }
+                isSearchBtnClicked = false;
+                mMainFragmentBinding.btnListToggling.setVisibility(View.VISIBLE);
+                mMainFragmentBinding.editSearch.setVisibility(View.GONE);
+                mMainFragmentBinding.editSearch.setText("");
+                mMainAdapter.searchFinish();
             } else {
                 isSearchBtnClicked = true;
                 mMainFragmentBinding.btnListToggling.setVisibility(View.GONE);
                 mMainFragmentBinding.editSearch.setVisibility(View.VISIBLE);
+                mMainAdapter.setmUnfilterBookmarkList(mMainFragmentBinding.getBookmarkEntities());
             }
         });
 
@@ -557,7 +546,11 @@ public class MainFragment extends Fragment implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+        try{
+            mMainAdapter.getFilter().filter(s);
+        }catch (Exception e){
+            Log.e("TTT", "text changed error " + e.getMessage());
+        }
     }
 
     @Override

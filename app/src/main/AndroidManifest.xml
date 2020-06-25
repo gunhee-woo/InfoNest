@@ -37,6 +37,9 @@
             android:name=".ui.palette.PopupActivity"
             android:theme="@style/popupTheme">
         </activity>
+        <activity android:name=".ui.palette.PopupActivity2"
+            android:theme="@style/popupTheme">
+        </activity>
         <activity android:name=".utilities.ShareEventActivity"
             android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
@@ -48,7 +51,8 @@
         </activity>
         <activity android:name=".ui.palette.BookMarkListPopupActivity"
             android:theme="@style/popupTheme"/>
-        <receiver android:name=".ui.palette.My_Widget_Provider">
+        <receiver android:name=".ui.palette.My_Widget_Provider"
+            android:label="@string/widget_name_palette">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
                 <action android:name="Click1"/>
@@ -67,6 +71,19 @@
         </receiver>
 
         <service android:name=".utilities.ClipboardService" />
+
+        <receiver android:name=".ui.palette.My_Widget_Provider2"
+            android:label="@string/widget_name_list">
+
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="Click1"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider2"/>
+
+        </receiver>
     </application>
 
 </manifest>

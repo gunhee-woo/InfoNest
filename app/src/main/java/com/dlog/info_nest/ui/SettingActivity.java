@@ -1,8 +1,11 @@
 package com.dlog.info_nest.ui;
 
+import android.appwidget.AppWidgetManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -17,6 +20,7 @@ import androidx.databinding.DataBindingUtil;
 import com.dlog.info_nest.BasicApp;
 import com.dlog.info_nest.R;
 import com.dlog.info_nest.databinding.SettingActivityBinding;
+import com.dlog.info_nest.ui.palette.My_Widget_Provider;
 
 import java.util.ArrayList;
 
@@ -24,17 +28,18 @@ import static com.dlog.info_nest.ui.main.MainFragment.hashingPassword;
 
 public class SettingActivity extends AppCompatActivity {
     private SettingActivityBinding mSettingActivityBinding;
-
+    ArrayList<SettingListItem> settingListItems = new ArrayList<>();
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSettingActivityBinding = DataBindingUtil.setContentView(this, R.layout.setting_activity);
 
-        ArrayList<SettingListItem> settingListItems = new ArrayList<>();
+        settingListItems = new ArrayList<>();
         settingListItems.add(new SettingListItem("비밀번호 설정", null));
         settingListItems.add(new SettingListItem("서비스 이용약관", null));
         settingListItems.add(new SettingListItem("버전 정보", "ver1.0"));
         settingListItems.add(new SettingListItem("개발자 메일 주소", "dlog@dlog.com"));
+
 
         SettingListAdapter settingListAdapter = new SettingListAdapter(settingListItems);
         mSettingActivityBinding.settingListView.setAdapter(settingListAdapter);
@@ -99,6 +104,21 @@ public class SettingActivity extends AppCompatActivity {
                     AlertDialog alertDialog = builder.setCancelable(false).create();
                     alertDialog.show();
                 }
+                /*
+                else if(position == 1){//위젯 자동 설정
+                    if(settingListItems.get(1).getTitle().equals("위젯 자동 업데이트 설정")){
+                        settingListItems.get(1).setTitle("위젯 자동 업데이트 해제");
+                        ((SettingListAdapter)mSettingActivityBinding.settingListView.getAdapter()).notifyDataSetChanged();
+                        //업데이트 인텐트 보내기
+                        Intent intent = new Intent(getApplicationContext(), My_Widget_Provider.class);
+                        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                        getApplicationContext().sendBroadcast(intent);
+                    }else{
+                        settingListItems.get(1).setTitle("위젯 자동 업데이트 설정");
+                        ((SettingListAdapter)mSettingActivityBinding.settingListView.getAdapter()).notifyDataSetChanged();
+                    }
+                }
+                 */
             }
         });
     }

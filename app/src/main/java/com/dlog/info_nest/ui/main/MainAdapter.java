@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,13 +35,18 @@ import com.dlog.info_nest.utilities.ItemTouchHelperListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder> implements ItemTouchHelperListener {
+public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder> implements ItemTouchHelperListener , Filterable {
 
     private List<BookmarkEntity> mBookmarkList;
     private Context mContext;
     private Boolean isVisible = true;
     private List<BookmarkEntity> lockedBookmarkList;
     private DataRepository mDataRepository;
+
+    /**
+     * 검색 필터링 전 리스트
+     */
+    private List<BookmarkEntity> mUnfilterBookmarkList;
 
     public MainAdapter(Context context) {
         this.mBookmarkList = new ArrayList<>();
@@ -238,6 +245,40 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         mContext.startActivity(intent);
     }
 
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String charString = constraint.toString();
+                if(charString.isEmpty()){
+                    mBookmarkList = mUnfilterBookmarkList;
+                }else {
+                    ArrayList<BookmarkEntity> filteringList = new ArrayList<>();
+                    for(int i = 0 ; i < mUnfilterBookmarkList.size() ; i++){
+                        BookmarkEntity bookmarkEntity = mUnfilterBookmarkList.get(i);
+                        String title = bookmarkEntity.mTitle;
+                        String tags = bookmarkEntity.mTags;
+                        if(title.toLowerCase().contains(charString.toLowerCase())
+                                || tags.toLowerCase().contains(charString.toLowerCase())){
+                            filteringList.add(bookmarkEntity);
+                        }
+                    }
+                    mBookmarkList = filteringList;
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = mBookmarkList;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                mBookmarkList = (ArrayList<BookmarkEntity>)results.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
+
     public class MainViewHolder extends RecyclerView.ViewHolder {
         final MainRecyclerItemBinding mainRecyclerItemBinding;
 
@@ -253,5 +294,17 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.MainViewHolder
         void imageVisible(Boolean b) {
             mainRecyclerItemBinding.setVariable(BR.imageVisible, b);
         }
+    }
+
+    public void setmUnfilterBookmarkList(List<BookmarkEntity> mUnfilterBookmarkList) {
+        this.mUnfilterBookmarkList = mUnfilterBookmarkList;
+    }
+
+    public List<BookmarkEntity> getmUnfilterBookmarkList() {
+        return mUnfilterBookmarkList;
+    }
+
+    public void searchFinish(){
+        this.mBookmarkList = mUnfilterBookmarkList;
     }
 }

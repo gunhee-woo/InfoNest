@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+    <GridLayout
+        android:id="@+id/canvas_grid_view"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_centerHorizontal="true"
+        android:columnCount="1"
+        android:rowCount="9"
+        android:layout_centerVertical="true"
+        >
+        <ImageView
+            android:id="@+id/img_list_1"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            android:layout_rowWeight="1"
+            />
+        <ImageView
+            android:id="@+id/img_list_2"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            android:layout_rowWeight="1"
+            />
+        <ImageView
+            android:id="@+id/img_list_3"
+            android:layout_rowWeight="1"
+            android:layout_margin="2dp"
+            android:layout_columnWeight="1"
+            />
+        <ImageView
+            android:id="@+id/img_list_4"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            android:layout_rowWeight="1"
+            android:layout_marginTop="10dp"
+            />
+        <ImageView
+            android:id="@+id/img_list_5"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            android:layout_rowWeight="1"
+            android:layout_marginTop="10dp"
+            />
+        <ImageView
+            android:id="@+id/img_list_6"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            android:layout_rowWeight="1"
+            android:layout_marginTop="10dp"
+            />
+        <ImageView
+            android:id="@+id/img_list_7"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            android:layout_rowWeight="1"
+            android:layout_marginTop="10dp"/>
+        <ImageView
+            android:id="@+id/img_list_8"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            android:layout_rowWeight="1"
+            android:layout_marginTop="10dp"
+            />
+        <ImageView
+            android:id="@+id/img_list_9"
+            android:layout_columnWeight="1"
+            android:layout_margin="2dp"
+            android:layout_rowWeight="1"
+            android:layout_marginTop="10dp"
+            />
+    </GridLayout>
+
+
+</RelativeLayout>
